@@ -5,7 +5,10 @@ class Calculator{
         this.previousOperand = previousOperand; // previous operand html element
         this.currentOperandInnerText; // hold the current operand content as string or float
         this.previoustOperandInnerText; // hold the prev operand content as string or float
-        this.operation; // hold operation as string
+        this.operationInnerText; // hold operation as string
+        // To remember last operation after operation is complete (cookie-clicking)
+        this.previousOperandInnerTextHidden;
+        this.operationInnerTextHidden;
         this.operationComplete = false; // operation state
         this.clearAll();
     }
@@ -43,12 +46,12 @@ class Calculator{
         let formatted_prev_operand = this.#formatDisplayNumber(this.previousOperandInnerText);
         // Set the current and previous operand html inner text
         this.currentOperand.innerText = formatted_curr_operand;
-        this.previousOperand.innerText = `${formatted_prev_operand}${this.operation}`
+        this.previousOperand.innerText = `${formatted_prev_operand}${this.operationInnerText}`
         // Dynamically Resize the string display
         let numLen = this.currentOperandInnerText.length
         const minFontSize = 0.8;
         const maxFontSize = 1;
-        const baseWidth = 13;
+        const baseWidth = 12;
         let fontSize = Math.min(maxFontSize, baseWidth / numLen);
         fontSize = Math.max(minFontSize, fontSize);
         this.display.style.fontSize = `${fontSize}rem`;
@@ -58,7 +61,9 @@ class Calculator{
         // Set current operant to 0 and the rest to nothing
         this.currentOperandInnerText = '0';
         this.previousOperandInnerText = '';
-        this.operation = '';
+        this.operationInnerText = '';
+        this.previousOperandInnerTextHidden = '';
+        this.operationInnerTextHidden = '';
         this.#updateDisplay();
     }
 
@@ -67,9 +72,10 @@ class Calculator{
         if(this.currentOperandInnerText.length === 1)
         {
             this.currentOperandInnerText = '0';
-            return;
-        } 
-        this.currentOperandInnerText = this.currentOperandInnerText.slice(0, -1);
+        }
+        else{
+            this.currentOperandInnerText = this.currentOperandInnerText.slice(0, -1);
+        }   
         this.#updateDisplay()
     }
 
@@ -93,7 +99,7 @@ class Calculator{
     chooseOperation(operator){
         // Allow change of operation if prev operand is set and no new current operand
         if(this.currentOperandInnerText === '0'){
-            this.operation = operator;
+            this.operationInnerText = operator;
             this.currentOperandInnerText = '0';
             this.#updateDisplay();
             return;
@@ -101,20 +107,22 @@ class Calculator{
         // Compute if there is a previous operand and current oprand (w/o need to click =)
         if(this.previousOperandInnerText !== '') this.compute()
         // Set fields
-        this.operation = operator;
+        this.operationInnerText = operator;
+        this.operationInnerTextHidden = operator;
         this.previousOperandInnerText = this.currentOperandInnerText;
+        this.previousOperandInnerTextHidden = this.currentOperandInnerText;
         this.currentOperandInnerText = '0';
         this.#updateDisplay()
     }
 
     compute(){
         // If there is no previous operation, simply return
-        if(this.previousOperandInnerText === '') return;
+        if(this.previousOperandInnerTextHidden === '') return;
         // Convert prev and curr operands to float and perform operation
         let computation;
         let current_num = parseFloat(this.currentOperandInnerText);
-        let prev_num = parseFloat(this.previousOperandInnerText);
-        switch(this.operation){
+        let prev_num = parseFloat(this.previousOperandInnerTextHidden);
+        switch(this.operationInnerTextHidden){
             case '+':
                 computation = prev_num + current_num;
                 break;
@@ -133,7 +141,7 @@ class Calculator{
         // Convert final computation to string and reset prev operand and operation fields
         this.currentOperandInnerText = computation.toString();
         this.previousOperandInnerText = '';
-        this.operation = '';
+        this.operationInnerText = '';
         // Set operation state to true
         if(!this.operationComplete)this.operationComplete = true;
         this.#updateDisplay();
