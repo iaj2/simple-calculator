@@ -1,5 +1,6 @@
 class Calculator{
-    constructor(currentOperand, previousOperand){
+    constructor(display, currentOperand, previousOperand){
+        this.display = display; // display html element
         this.currentOperand = currentOperand; // current operand html element
         this.previousOperand = previousOperand; // previous operand html element
         this.currentOperandInnerText; // hold the current operand content as string or float
@@ -10,6 +11,12 @@ class Calculator{
     }
 
     #formatDisplayNumber(strNum){
+        // Convert to exponential if too long
+        let maxDigits = 15;
+        if (strNum.length > maxDigits) {
+            let number = parseFloat(strNum)
+            return number.toExponential(8); // Convert to exponential form with 8 decimal places
+        }
         let displayNumStr; // Final display number string
         let integerDigits;
         // Split into digits and decimal number strings if there contains a '.'
@@ -37,6 +44,14 @@ class Calculator{
         // Set the current and previous operand html inner text
         this.currentOperand.innerText = formatted_curr_operand;
         this.previousOperand.innerText = `${formatted_prev_operand}${this.operation}`
+        // Dynamically Resize the string display
+        let numLen = this.currentOperandInnerText.length
+        const minFontSize = 0.8;
+        const maxFontSize = 1;
+        const baseWidth = 13;
+        let fontSize = Math.min(maxFontSize, baseWidth / numLen);
+        fontSize = Math.max(minFontSize, fontSize);
+        this.display.style.fontSize = `${fontSize}rem`;
     }
 
     clearAll(){
@@ -135,10 +150,11 @@ class Calculator{
 }
 
 // Init new calculator
+const display = document.getElementById("output-display");
 const currentOperand = document.querySelector('[data-current-operand]');
 const previousOperand = document.querySelector('[data-previous-operand]');
 
-const calculator = new Calculator(currentOperand,previousOperand);
+const calculator = new Calculator(display,currentOperand,previousOperand);
 
 // Clear all
 const clearAllButton = document.querySelector('[data-clear-all]');
@@ -171,4 +187,6 @@ equalsButton.addEventListener('click', ()=> calculator.compute());
 // Convert to percentage
 const percentageButton = document.querySelector('[data-percentage]');
 percentageButton.addEventListener('click', ()=> calculator.convertPercentage());
+
+
 

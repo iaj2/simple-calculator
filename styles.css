@@ -67,6 +67,7 @@ body{
 }
 
 .output{
+    font-size: 1rem;
     display: flex;
     grid-column: span 4;
     overflow: hidden;
@@ -81,10 +82,10 @@ body{
 
 .output > .previous-operand{
     color: #353535ef;
-    font-size: 1.2rem;
+    font-size: 1.2em;
 }
 
 .output > .current-operand{
     color:#080808de;
-    font-size: 1.8rem;
+    font-size: 1.8em;
 }
